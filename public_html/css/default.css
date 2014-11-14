@@ -1,0 +1,75 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Oct 13, 2014, 3:38:44 PM
+    Author     : Tim
+*/
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 100px;
+  background-color: #333;
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+body > .container {
+  padding: 60px 15px 0;
+}
+.container .text-muted {
+  margin: 20px 0;
+}
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+.progress {
+
+    background-color: black;
+    color: black;
+    height: 3px;
+    border: 10px;
+    margin-top: 15px;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+.progress-bar {
+    background-image: 'none';
+    background-color: orange;
+    color: black;
+    height: 3px;
+}
+.code {
+  font-size: 80%;
+}
+.white {
+    color: white;
+}
+.glyphicon {
+    color: white;
+}
+span.glyphicon {
+    margin: 15px;
+    font-size: 3.0em;
+}
+
+
