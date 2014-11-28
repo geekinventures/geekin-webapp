@@ -7,6 +7,7 @@
 
 $(document).ready(function(){
     //test initial setup and detect private browsing modes
+    console.log("hello");
     try{
         localStorage.tryStorage = 2;
     } catch (e) {
@@ -14,7 +15,8 @@ $(document).ready(function(){
     }
     
     console.log("document read");
-    $("#username-form").submit(function(event){
+
+    $("#submit-btn").click(function(event){
         event.preventDefault();
         console.log($("#username-input").val());
         if($("#username-input").val().length === 0){

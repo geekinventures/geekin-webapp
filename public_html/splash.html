@@ -4,9 +4,9 @@
     <head>
         <title>TODO supply a title</title>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/offcanvas.css">
+        <link rel="stylesheet" href="css/splash.css">
         <script src="http://connect.soundcloud.com/sdk.js"></script>
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -18,13 +18,17 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     </head>
     <body>
-        <div class="container-fluid">
-            <form id='username-form' class='form-signin' role='form'>
-                <h2 class='form-signin-heading'>Create your Broadcast name</h2>
-                <input id="username-input" type='text' class='form-control' placeholder='BroadcastName' required autofocus>
-                <button id='submit-btn' class='btn btn-lg btn-primary btn-block' type='submit'>Go!</button>
-            </form>
+        <div class="jumbotron">
+          <div class="container">
+              <span class="">
+                  <img src="images/geekinradio_logo.png">
+              </span>
+            <div class="box">
+                <input id='username-input' type="text" placeholder="username">
+                <button id='submit-btn' class="btn btn-default full-width"><span class="glyphicon glyphicon-ok"></span></button>
+            </div>
+          </div>
         </div>
-
+</div>
     </body>
 </html>

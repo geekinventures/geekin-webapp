@@ -5,6 +5,10 @@
 html,
 body {
   overflow-x: hidden; /* Prevent scroll on narrow devices */
+  background-color: #333;
+}
+.form-signin{
+    background-color: #333;
 }
 body {
   padding-top: 70px;

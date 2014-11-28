@@ -110,7 +110,13 @@ function playSong(song, data){
                 var lag = ping();
                 console.log("lag");
                 console.log(lag+broadcasterPing);
-                song.setPosition(snapshot.val() + (lag+broadcasterPing));
+                
+                //calculation method where users ping is added to broadcaster's
+                //ping
+                // song.setPosition(snapshot.val() + (lag+broadcasterPing));
+                
+                //calculation does not take into account ping of client and bcaster
+                song.setPosition(snapshot.val());
                 refPos = song.position;
             }
         }
