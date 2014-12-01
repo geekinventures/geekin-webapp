@@ -26,14 +26,11 @@ $(document).ready(function(){
     var stream = SC.stream("/tracks/"+songJS['song'].id, function(sound){
         sound.load({
             whileloading: function(){
-//                updateProgressBar(this.bytesLoaded, this.bytesTotal);
+                updateProgressBar(this.bytesLoaded, this.bytesTotal);
                 updateLoadingText(this.bytesLoaded, this.bytesTotal);
             },
             onload: function(){
 //                $("#player_bar").show("slow");
-                
-                
-                
             }
         });
         $("#start-bcast-btn").click(function(){
@@ -125,10 +122,12 @@ function updateLoadingText(soFar, total){
     
 }
 function updateProgressBar(soFar, total){
+    
     var pBar = $("#progress-bar");
     var percentage = (soFar/total).toFixed(2) * 100;
 //    console.log(percentage);
-    pBar.attr('aria-valuenow', percentage.toString());
+    pBar.attr('aria-valuenow', soFar);
+    pBar.attr('aira-valuemax', total.toString());
 //    pBar.text(percentage);
     pBar.css("width",percentage+"%");
 }
