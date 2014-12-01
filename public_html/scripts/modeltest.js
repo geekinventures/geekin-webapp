@@ -66,7 +66,7 @@ function playSong(song, data){
     });
     var playStats = new Firebase("https://luminous-inferno-8382.firebaseio.com/onlineusers/"+data.id+"/status");
     var reference = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data.id+"/playstatus");
-    var pingOfBCast = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data.id+"/ping")
+    var pingOfBCast = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data.id+"/ping");
     var refPos = 0;
     var syncroLimit = 0;
     $("#pauseplay-btn").click(function(){
@@ -133,8 +133,8 @@ function playSong(song, data){
 function updateProgressBar(soFar, total){
     var pBar = $("#progress-bar");
     var percentage = (soFar/total).toFixed(2) * 100;
-//    console.log(percentage);
-    pBar.attr('aria-valuenow', percentage.toString());
+    pBar.attr('aria-valuenow', soFar.troString());
+    pBar.attr('aria-valuemax', total.toString());
     pBar.text(percentage);
     pBar.css("width",percentage+"%");  
 }

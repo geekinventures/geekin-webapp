@@ -4,7 +4,7 @@
  */
 
 /*-----------GLOBALS------------*/
-
+var fbURL = "https://luminous-inferno-8382.firebaseio.com";
 
 
 /*
@@ -18,7 +18,8 @@ function AuthLogicLogin(uemail, upassword){
     //sets the 'username' and stores this information once.
     //remember the username is used throughout the application to define
     //the broadcaster's name.
-    var ref = new Firebase("https://luminous-inferno-8382.firebaseio.com");
+    
+    var ref = new Firebase(fbURL);
     
     //logs in an authenticated user and redirects them to main page
     ref.authWithPassword({
@@ -35,9 +36,19 @@ function AuthLogicLogin(uemail, upassword){
             //email -> fb key
             console.log(emailToKey(uemail));
             
-            //skeleton
-            var user = {};
-            var channelInfo = {};
+            //get user's username from fb reference
+            var userRef = new Firebase(fbURL+"/"+emailToKey(uemail));
+            userRef.once('value', function(snapshot){
+                console.log(snapshot.val());
+                var uData = snapshot.val();
+                bindUsernameToApp(uData.username);
+                
+                //redirect user
+                window.location = "searchview.html";
+            });
+            
+            
+            
             
         }
     });
@@ -57,7 +68,7 @@ function AuthLogicCreateUser(uname, uemail, upassword){
     //function will attempt to create a new user with provided credentials
     //sets the 'username' for application purposes. see login logic for 
     //explanation of why this is necessary. 
-    var ref = new Firebase("https://luminous-inferno-8382.firebaseio.com");
+    var ref = new Firebase(fbURL);
     ref.createUser({
         email: uemail,
         password: upassword
@@ -75,7 +86,25 @@ function AuthLogicCreateUser(uname, uemail, upassword){
 
         } else {
             console.log("User account created successfully!");
-
+            
+            //create user skeleton
+            var user = {};
+            user.ping = null;
+            user.emailKey = emailToKey(uemail);
+            user.playstatus = null;
+            user.username = uname;
+            user.channel = null;
+            var channelInfo = {};
+            channelInfo.song = null;
+            channelInfo.starttime = null;
+            channelInfo.user = uname;
+            
+            user.channel = channelInfo;
+            writeData(user);
+            bindUsernameToApp(uname);
+            
+            //redirect user
+            window.location = "searchview.html";
         }
     });
 }
@@ -106,7 +135,7 @@ function bindUsernameToApp(uname){
 }
 
 function writeData(data){
-    var myFirebaseRef = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data['emailKey']);
+    var myFirebaseRef = new Firebase(fbURL+"/"+data['emailKey']);
     myFirebaseRef.set(data);
 }
 

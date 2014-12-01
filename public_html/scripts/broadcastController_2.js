@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
+var fbURL = "https://luminous-inferno-8382.firebaseio.com";
 
 $(document).ready(function(){
     SC.initialize({
@@ -26,11 +26,9 @@ $(document).ready(function(){
     var stream = SC.stream("/tracks/"+songJS['song'].id, function(sound){
         sound.load({
             whileloading: function(){
+                console.log(this.bytesLoaded, this.bytesTotal);
                 updateProgressBar(this.bytesLoaded, this.bytesTotal);
-                updateLoadingText(this.bytesLoaded, this.bytesTotal);
-            },
-            onload: function(){
-//                $("#player_bar").show("slow");
+//                updateLoadingText(this.bytesLoaded, this.bytesTotal);
             }
         });
         $("#start-bcast-btn").click(function(){
@@ -101,7 +99,6 @@ function getSongData(){
 function updateUserInfo(playStatus){
     console.log("firing updateuseringo");
     var songJS = JSON.parse(getSongData());
-    var username = localStorage.getItem('username');
     var date = new Date();
     var user = {};
     var channelInfo = {};
@@ -122,18 +119,15 @@ function updateLoadingText(soFar, total){
     
 }
 function updateProgressBar(soFar, total){
-    
+    var percentage = soFar/total * 100;
     var pBar = $("#progress-bar");
-    var percentage = (soFar/total).toFixed(2) * 100;
-//    console.log(percentage);
     pBar.attr('aria-valuenow', soFar);
     pBar.attr('aira-valuemax', total.toString());
-//    pBar.text(percentage);
     pBar.css("width",percentage+"%");
 }
 
 function writeData(data){
-    var myFirebaseRef = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data['username']);
+    var myFirebaseRef = new Firebase(fbURL+"/"+data['username']);
     myFirebaseRef.set(data);
 }
 
@@ -154,6 +148,6 @@ function updateStatus(playerStatus){
     player['status'] = playerStatus;
     player['song'] = localStorage.getItem('song');
     player['currentPosition'] = d.getTime();
-    var myFirebaseRef = new Firebase("https://luminous-inferno-8382.firebaseio.com/onlineusers/"+username);
+    var myFirebaseRef = new Firebase(fbURL+"/onlineusers/"+username);
     myFirebaseRef.update(player);
 }
