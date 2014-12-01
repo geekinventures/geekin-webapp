@@ -15,50 +15,39 @@ $(document).ready(function(){
     }
     
     console.log("document read");
+    
+    $("#register-btn").click(function(event){
+        event.preventDefault();
+
+        window.location = "register.html";
+    });
 
     $("#submit-btn").click(function(event){
         event.preventDefault();
-        console.log($("#username-input").val());
-        var username = $("#username-input").val();
+
         var password = $("#password-input").val();
+        var email = $("#email-input").val();
         var user = {};
         user.username = username;
         user.password = password;
-        loginUser(user);
+        user.email = email;
         
         //verify user actually entered something
         if($("#username-input").val().length === 0){
             console.log("user being too cute...need to enter text");
-            alert("You gotta have a username yo!");
+            alert("You gotta have an email yo!");
         }else{
             if(typeof Storage !== 'undefined'){
                 localStorage.setItem('user_name', $("#username-input").val());
                 console.log(localStorage.getItem('user_name'));
-//                window.location = "searchview.html";
-            }else{
+
+                //attempt to login user w/ creds.
+                AuthLogicLogin(email, password);
+                
+            } else {
                 alert("Your browser doesn't support local storage...upgrade quick");
             }
         }
     });
 });
 
-function createNewUser(user){
-    //creates a new user with provided credentials if none exist
-}
-
-function loginUser(user){
-    console.log(user);
-    //logs in an authenticated user and redirects them to main page
-    var ref = new Firebase("https://luminous-inferno-8382.firebaseio.com");
-    ref.authWithPassword({
-        email: String(user.email),
-        password: String(user.password)
-    }, function(error, authData){
-        if(error){
-            console.log(error);
-            alert("Login Failed with error ", error);
-        }else{
-            console.log("Authenticated with authData ", authData);
-        }
-    });
-}
