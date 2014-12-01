@@ -18,31 +18,30 @@ $(document).ready(function(){
     
     $("#register-btn").click(function(event){
         event.preventDefault();
-
         window.location = "register.html";
     });
 
     $("#submit-btn").click(function(event){
         event.preventDefault();
-
-        var password = $("#password-input").val();
+        
         var email = $("#email-input").val();
-        var user = {};
-        user.username = username;
-        user.password = password;
-        user.email = email;
+        var password = $("#password-input").val();
+        
         
         //verify user actually entered something
-        if($("#username-input").val().length === 0){
+        if($("#email-input").val().length === 0){
             console.log("user being too cute...need to enter text");
             alert("You gotta have an email yo!");
         }else{
             if(typeof Storage !== 'undefined'){
-                localStorage.setItem('user_name', $("#username-input").val());
-                console.log(localStorage.getItem('user_name'));
+                
+                //TODO: get username from firebase!
+                
+                //localStorage.setItem('user_name', $("#username-input").val());
+                //console.log(localStorage.getItem('user_name'));
 
                 //attempt to login user w/ creds.
-                AuthLogicLogin(email, password);
+                console.log(AuthLogicLogin(email, password));
                 
             } else {
                 alert("Your browser doesn't support local storage...upgrade quick");
