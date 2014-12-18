@@ -23,7 +23,8 @@ $(document).ready(function(){
 
     $("#submit-btn").click(function(event){
         event.preventDefault();
-        
+        console.log("input email", $("#email-input").val());
+        console.log(emailToKey($("#email-input").val()));
         var email = $("#email-input").val();
         var password = $("#password-input").val();
         
@@ -41,7 +42,7 @@ $(document).ready(function(){
                 //console.log(localStorage.getItem('user_name'));
 
                 //attempt to login user w/ creds.
-                console.log(AuthLogicLogin(email, password));
+                AuthLogicLogin(email, password);
                 
             } else {
                 alert("Your browser doesn't support local storage...upgrade quick");

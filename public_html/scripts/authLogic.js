@@ -18,7 +18,7 @@ function AuthLogicLogin(uemail, upassword){
     //sets the 'username' and stores this information once.
     //remember the username is used throughout the application to define
     //the broadcaster's name.
-    
+    console.log("input email and password", uemail, upassword);
     var ref = new Firebase(fbURL);
     
     //logs in an authenticated user and redirects them to main page
@@ -34,6 +34,7 @@ function AuthLogicLogin(uemail, upassword){
             
             //create user object skeleton on firebase
             //email -> fb key
+            console.log("email to key");
             console.log(emailToKey(uemail));
             
             //get user's username from fb reference
@@ -42,7 +43,7 @@ function AuthLogicLogin(uemail, upassword){
                 console.log(snapshot.val());
                 var uData = snapshot.val();
                 bindUsernameToApp(uData.username);
-                
+                console.log(uData.username);
                 //redirect user
                 window.location = "searchview.html";
             });
@@ -101,7 +102,7 @@ function AuthLogicCreateUser(uname, uemail, upassword){
             
             user.channel = channelInfo;
             writeData(user);
-            bindUsernameToApp(uname);
+            bindUsernameToApp(emailToKey(uemail));
             
             //redirect user
             window.location = "searchview.html";

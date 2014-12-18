@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 
+var fbURL = "https://luminous-inferno-8382.firebaseio.com";
 
 $(document).ready(function(){
     //subscribe to channel
@@ -15,7 +16,7 @@ $(document).ready(function(){
     var online = new Firebase("https://luminous-inferno-8382.firebaseio.com/onlineusers");
     
     online.on('value', function(snapshot){
-        console.log(snapshot.val());
+        
         addUser(snapshot.val());
     });
     $("#search-feed").click(function(){
@@ -25,7 +26,7 @@ $(document).ready(function(){
     $("#online_users").click('li', function(data){
 //        console.log($(data.target).data().start);
         var data = $(data.target).data();
-        console.log(data);
+        
         var trackid = data.song.id;
         var stream = SC.stream("/tracks/"+trackid,function(sound){
             sound.load({
@@ -53,21 +54,21 @@ function writeData(data){
 }
 
 function playSong(song, data){
+    //set the song position then start playing it
 
     var position = data.start;
-    console.log(data.start);
-    console.log(data.id);
     var current = new Date();
-    song.setPosition(current.getTime() - position);
+    console.log("Current Time on listener ", Date.now());
+    song.setPosition(Date.now() - position);
     song.play({
         whileplaying: function(){
             updateProgressBar(this.position, this.duration);
         }
     });
     var playStats = new Firebase("https://luminous-inferno-8382.firebaseio.com/onlineusers/"+data.id+"/status");
-    var reference = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data.id+"/playstatus");
-    var pingOfBCast = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data.id+"/ping");
-    var refPos = 0;
+    var reference = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data.id);
+//    var pingOfBCast = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data.id+"/ping");
+//    var refPos = 0;
     var syncroLimit = 0;
     $("#pauseplay-btn").click(function(){
         song.togglePause();
@@ -76,6 +77,7 @@ function playSong(song, data){
     }); //sound
     playStats.on('value', function(snapshot){
         syncroLimit = 1;
+
         if(snapshot.val() === false){
             console.log("firing paused");
             song.pause();
@@ -91,41 +93,14 @@ function playSong(song, data){
             updatePlayBtn(!song.paused);
         }
     });
-    reference.on('value', function(snapshot){
-        console.log("Syncro Limit");
-        console.log(syncroLimit);
-        var broadcasterPing = 0;
-        pingOfBCast.once('value', function(snapshot){
-           console.log("ping");
-           console.log("broadcaster ping " + snapshot.val());
-           console.log("listener ping " + ping());
-           console.log("Summation of Ping " + (snapshot.val() + ping()));
-           broadcasterPing = snapshot.val();
-        });
-        var lag = ping();
-
-        if(syncroLimit < 4){
-            console.log("firebase firing and syncro limit is " + syncroLimit);
-            if(song.position > (refPos + 100)){
-                var lag = ping();
-                console.log("lag");
-                console.log(lag+broadcasterPing);
-                
-                //calculation method where users ping is added to broadcaster's
-                //ping
-                // song.setPosition(snapshot.val() + (lag+broadcasterPing));
-                
-                //calculation does not take into account ping of client and bcaster
-                song.setPosition(snapshot.val());
-                refPos = song.position;
-            }
+    reference.on('value', function(snapshot){        
+        if(syncroLimit < 50){
+//            var lag = ping();
+//            console.log(lag);
+            console.log(snapshot.val().newAlgorithm.start_time);
+            console.log("Time Different ", (Date.now() - snapshot.val().newAlgorithm.start_time));
+            song.setPosition((Date.now() - snapshot.val().newAlgorithm.start_time));
         }
-        if(song.position > ((lag+broadcasterPing)+snapshot.val())){
-            syncroLimit = 0;
-            song.setPosition(snapshot.val());
-        }
-        console.log("reference position");
-        console.log(refPos);
         syncroLimit++;
     });
 }
@@ -133,7 +108,7 @@ function playSong(song, data){
 function updateProgressBar(soFar, total){
     var pBar = $("#progress-bar");
     var percentage = (soFar/total).toFixed(2) * 100;
-    pBar.attr('aria-valuenow', soFar.troString());
+    pBar.attr('aria-valuenow', soFar.toString());
     pBar.attr('aria-valuemax', total.toString());
     pBar.text(percentage);
     pBar.css("width",percentage+"%");  
@@ -167,4 +142,28 @@ function updatePlayBtn(bool){
         //show play button
         $('#pauseplay-btn').attr("class","glyphicon glyphicon-play white");
     }
+}
+
+//returns the position where the song should be (seek to position)
+function newAlgorithm(currentSongPosition, broadcasterName){
+    //grab the data from Firebase b_start time and b_event time (pause play event)
+    var fbRef = new Firebase(fbURL+"/"+broadcasterName+"/newAlgorithm");
+    var bCastTime = null;
+    fbRef.once("value", function(snapshot){
+        
+        bCastTime = snapshot.val().start_time;
+        
+        return Date.now() - bCastTime;
+    });
+    //calculate where the listeners position is
+    
+    //calculate the difference between the broadcaster and listeners time
+    var bcastListenerDifference = Date.now() - bCastTime;
+    
+    //return the position of where the song should now go
+    
+    var result = bcastListenerDifference;
+    
+//    return result;
+    
 }

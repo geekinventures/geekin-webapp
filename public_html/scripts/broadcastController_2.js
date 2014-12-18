@@ -13,11 +13,11 @@ $(document).ready(function(){
     $("#player_bar").hide();
     $("#start-bcast-btn").show();
     $("#search-feed").click(function(){
-        updateStatus(false);
+        updateStatus(false, 0);
         window.location = "searchview.html";
     });
     $("#listener-feed").click(function(){
-        updateStatus(false);
+        updateStatus(false, 0);
         window.location = "modeltest.html";
     });
     var songJS = JSON.parse(getSongData());
@@ -32,13 +32,16 @@ $(document).ready(function(){
             }
         });
         $("#start-bcast-btn").click(function(){
+            
+            updateListenHistory(localStorage.getItem('user_name'), getSongData());
+            initialDBUpdate(localStorage.getItem('user_name'), 0);
             if(true){
                 $("#loading-main").remove();
                 $("#player_bar").show();
                 $("#pauseplay-btn").show();
                 sound.play({
                     whileplaying: function(){
-                        if(sound.position > (prevPosition+5000)){
+                        if(sound.position > (prevPosition+0)){
                             prevPosition = this.position;
                             updateUserInfo(this.position);
                         }
@@ -46,7 +49,7 @@ $(document).ready(function(){
                     }
                 });
                 updatePlayBtn(true);
-                updateStatus(!sound.paused);
+                updateStatus(!sound.paused, sound.position);
                 this.remove();
             }else{
                 alert("Song has not loaded yet");
@@ -54,31 +57,33 @@ $(document).ready(function(){
                 
         });
         $("#pauseplay-btn").click(function(){
-            console.log("pauseplay hit");
-            console.log(sound.readyState);
+//            console.log("pauseplay hit");
+//            console.log(sound.readyState);
+            var sound_position_snapshot = sound.position;
+//            console.log("sound position " + sound.position);
             sound.togglePause();
 //            if(sound.readyState === 3){
 //               sound.togglePause();
 //               console.log(!sound.paused);
 //            }
             updatePlayBtn(!sound.paused);
-            updateStatus(!sound.paused);
+            updateStatus(!sound.paused, sound_position_snapshot);
         });
         
     });
-    console.log(stream);
+//    console.log(stream);
     
 }); //document ready
 
 
 
 function updatePlayBtn(bool){
-    console.log(bool);
+//    console.log(bool);
     if(bool){
         //show pause button
         //song is playing
         updateUserInfo(bool);
-        console.log($("#pauseplay-btn"));
+//        console.log($("#pauseplay-btn"));
         $('#pauseplay-btn').attr("class","glyphicon glyphicon-pause");
     }else{
         //show play button
@@ -87,6 +92,7 @@ function updatePlayBtn(bool){
         $('#pauseplay-btn').attr("class","glyphicon glyphicon-play");
     }
 }
+
 function getSongData(){
     if(typeof(Storage) !== 'undefined'){
         return localStorage.getItem('song');
@@ -97,7 +103,9 @@ function getSongData(){
 }
 
 function updateUserInfo(playStatus){
-    console.log("firing updateuseringo");
+//    console.log("firing updateuseringo");
+    var fbRef = new Firebase(fbURL);
+   
     var songJS = JSON.parse(getSongData());
     var date = new Date();
     var user = {};
@@ -110,6 +118,32 @@ function updateUserInfo(playStatus){
     user['playstatus'] = playStatus;
     user['ping'] = ping();
     writeData(user);
+
+}
+
+function updateChannelInfo(username, songData, playstatus, start, ping){
+    //fbURL/[username]/channel endpoint
+    var fbRef = new Firebase(fbURL+"/"+username);
+    var channelChild = fbRef.child("channel");
+    var data = {};
+    var date = new Date();
+    data['channelInfo'] = songData;
+    data['starttime'] = start;
+    data['ping'] = ping;
+    data['playstatus'] = playstatus;
+    data['username'] = username;
+    data['starttime'] = date.now();
+    channelChild.push(data);
+}
+
+function initialDBUpdate(username, songPosition){
+    var fbRef = new Firebase(fbURL+"/"+username+"/newAlgorithm");
+    var data = {};
+    console.log("Time Now in milli");
+    console.log(Date.now());
+    data['start_time'] = Date.now();
+    data['song_position'] = songPosition;
+    fbRef.update(data);
 }
 
 function updateLoadingText(soFar, total){
@@ -128,9 +162,13 @@ function updateProgressBar(soFar, total){
 
 function writeData(data){
     var myFirebaseRef = new Firebase(fbURL+"/"+data['username']);
-    myFirebaseRef.set(data);
+    myFirebaseRef.update(data);
 }
 
+function updateListenHistory(emailKey, songData){
+    var userHistoryReference = new Firebase(fbURL+"/"+emailKey+"/history");
+    userHistoryReference.push(songData);
+}
 function updatePlayBtn(bool){
     if(bool){
         //show pause button
@@ -141,13 +179,21 @@ function updatePlayBtn(bool){
     }
 }
 
-function updateStatus(playerStatus){
+//updates the broadcasters online presence to reflect the play condition
+function updateStatus(playerStatus, current_position){
+//    console.log("current position " + current_position);
+//    console.log("play status " + playerStatus);
     var username = localStorage.getItem('user_name');
     var d = new Date();
     var player = {};
+    var data = {};
+    data['song_position'] = current_position;
     player['status'] = playerStatus;
     player['song'] = localStorage.getItem('song');
     player['currentPosition'] = d.getTime();
     var myFirebaseRef = new Firebase(fbURL+"/onlineusers/"+username);
+    var fbRef = new Firebase(fbURL+"/"+username+"/newAlgorithm");
     myFirebaseRef.update(player);
+    fbRef.update(data);
+    
 }
