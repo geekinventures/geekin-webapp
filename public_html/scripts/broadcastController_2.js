@@ -23,6 +23,7 @@ $(document).ready(function(){
     var songJS = JSON.parse(getSongData());
     updateUserInfo(true);
     var prevPosition = 0;
+    var updateOnceCount = 0;
     var stream = SC.stream("/tracks/"+songJS['song'].id, function(sound){
         sound.load({
             whileloading: function(){
@@ -35,19 +36,49 @@ $(document).ready(function(){
             
             updateListenHistory(localStorage.getItem('user_name'), getSongData());
             initialDBUpdate(localStorage.getItem('user_name'), 0);
+            var fbRef = new Firebase(fbURL+"/"+localStorage.getItem('user_name'));
+            var skew = new Firebase(fbURL+"/.info/serverTimeOffset");
+            skew.once('value', function(snap){
+                fbRef.once('value', function(snapshot){
+                    //set client time
+                    var offset = new Date().getTime() + snap.val();
+                    sound.setPosition(offset - snapshot.val().servertime);
+                });
+            });
+//            $("#loading-main").remove();
+//            $("#player_bar").show();
+//            $("#pauseplay-btn").show();
             if(true){
                 $("#loading-main").remove();
                 $("#player_bar").show();
                 $("#pauseplay-btn").show();
                 sound.play({
+                    onplay: function(){
+                        initialDBUpdate(localStorage.getItem('user_name'), 0);
+                    },
                     whileplaying: function(){
-                        if(sound.position > (prevPosition+0)){
+                        if(sound.position > (prevPosition+50)){
                             prevPosition = this.position;
                             updateUserInfo(this.position);
                         }
                         updateProgressBar(sound.position, sound.duration);
                     }
                 });
+                var bounceBack = new Firebase(fbURL+"/"+localStorage.getItem('user_name'));
+                var syncroLimit = 0;
+//                bounceBack.once('value', function(snapshot){
+//                    sound.setPosition(Firebase.ServerValue.TIMESTAMP - snapshot.val().servertime);
+//                });
+//                bounceBack.on('value', function(snapshot){
+//                    console.log("broadcaster bounceback");
+//                    console.log(snapshot.val().playstatus);
+//                    if(syncroLimit < 15){
+//                        syncroLimit++;
+//                        sound.setPosition(Date.now() - snapshot.val().servertime);
+//                        console.log("Server time difference ", Firebase.ServerValue.TIMESTAMP - snapshot.val().servertime + 5000);
+//                    }
+//                    
+//                });
                 updatePlayBtn(true);
                 updateStatus(!sound.paused, sound.position);
                 this.remove();
@@ -116,7 +147,8 @@ function updateUserInfo(playStatus){
     user['username'] = localStorage.getItem('user_name');
     user['channel'] = channelInfo;
     user['playstatus'] = playStatus;
-    user['ping'] = ping();
+//    user['servertime'] = Firebase.ServerValue.TIMESTAMP;
+//    user['ping'] = ping();
     writeData(user);
 
 }
@@ -138,11 +170,15 @@ function updateChannelInfo(username, songData, playstatus, start, ping){
 
 function initialDBUpdate(username, songPosition){
     var fbRef = new Firebase(fbURL+"/"+username+"/newAlgorithm");
+    var timeTest = new Firebase(fbURL+"/"+username);
+    var servertime = {};
+    timeTest.update({'servertime':Firebase.ServerValue.TIMESTAMP});
     var data = {};
-    console.log("Time Now in milli");
-    console.log(Date.now());
+//    console.log("Time Now in milli");
+//    console.log(Date.now());
     data['start_time'] = Date.now();
     data['song_position'] = songPosition;
+    
     fbRef.update(data);
 }
 

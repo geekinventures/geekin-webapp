@@ -8,6 +8,13 @@ var fbURL = "https://luminous-inferno-8382.firebaseio.com";
 
 $(document).ready(function(){
     //subscribe to channel
+    var clockSkew = new Firebase(fbURL+"/.info/serverTimeOffset");
+    clockSkew.on('value', function(snap){
+        var offset = snap.val();
+        console.log("offset", offset);
+        var estimatedSkew = new Date().getTime() + offset;
+        console.log("Estimated clock skew of client", estimatedSkew);
+    });
     SC.initialize({
         client_id:"0f0e321b9652115f3a8ea04f5030f9c0",
         redirect_uri: "http://localhost:8383/geekinradio/callback.html"
@@ -54,12 +61,6 @@ function writeData(data){
 }
 
 function playSong(song, data){
-    //set the song position then start playing it
-
-    var position = data.start;
-    var current = new Date();
-    console.log("Current Time on listener ", Date.now());
-    song.setPosition(Date.now() - position);
     song.play({
         whileplaying: function(){
             updateProgressBar(this.position, this.duration);
@@ -69,6 +70,16 @@ function playSong(song, data){
     var reference = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data.id);
 //    var pingOfBCast = new Firebase("https://luminous-inferno-8382.firebaseio.com/"+data.id+"/ping");
 //    var refPos = 0;
+    //set the song position then start playing it
+    var fbRef = new Firebase(fbURL+"/"+data.id);
+    var skew = new Firebase(fbURL+"/.info/serverTimeOffset");
+    skew.once('value', function(snap){
+        fbRef.once('value', function(snapshot){
+            //set client time
+            var offset = new Date().getTime() + snap.val();
+            song.setPosition(offset - snapshot.val().servertime);
+        });
+    });
     var syncroLimit = 0;
     $("#pauseplay-btn").click(function(){
         song.togglePause();
@@ -88,20 +99,10 @@ function playSong(song, data){
             song.resume();
             reference.once('value', function(snapshot){
                console.log("this value changed");
-               song.setPosition(snapshot.val()); 
+//               song.setPosition(snapshot.val()); 
             });
             updatePlayBtn(!song.paused);
         }
-    });
-    reference.on('value', function(snapshot){        
-        if(syncroLimit < 50){
-//            var lag = ping();
-//            console.log(lag);
-            console.log(snapshot.val().newAlgorithm.start_time);
-            console.log("Time Different ", (Date.now() - snapshot.val().newAlgorithm.start_time));
-            song.setPosition((Date.now() - snapshot.val().newAlgorithm.start_time));
-        }
-        syncroLimit++;
     });
 }
 

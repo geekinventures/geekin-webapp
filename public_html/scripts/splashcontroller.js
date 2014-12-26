@@ -4,9 +4,25 @@
  * and open the template in the editor.
  */
 
+/*-----------GLOBALS------------*/
+var fbURL = "https://luminous-inferno-8382.firebaseio.com";
 
 $(document).ready(function(){
     //test initial setup and detect private browsing modes
+    
+    var myToken = getAuthenticationToken();
+    if(myToken){
+        //authenticate user
+        var fbRef = new Firebase(fbURL);
+        fbRef.authWithCustomToken(myToken, function(error, authData){
+            if(error){
+                console.log("Login Failed", error);
+            }else{
+                console.log(authData);
+            }
+        });
+    }
+    console.log(myToken);
     console.log("hello");
     try{
         localStorage.tryStorage = 2;

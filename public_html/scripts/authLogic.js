@@ -36,7 +36,9 @@ function AuthLogicLogin(uemail, upassword){
             //email -> fb key
             console.log("email to key");
             console.log(emailToKey(uemail));
-            
+            var fbRef = new Firebase(fbURL);
+            console.log("Authentication Credentials");
+            console.log(fbRef.getAuth());
             //get user's username from fb reference
             var userRef = new Firebase(fbURL+"/"+emailToKey(uemail));
             userRef.once('value', function(snapshot){
@@ -142,4 +144,15 @@ function writeData(data){
 
 function emailToKey(email){
     return email.replace(/[^a-zA-z0-9]/g, '');
+}
+
+function getAuthenticationToken(){
+    var token = null;
+    var fbRef = new Firebase(fbURL);
+//    var token = fbRef.getAuth().token;
+    return null;
+}
+
+function authenticateWithToken(token){
+    
 }
